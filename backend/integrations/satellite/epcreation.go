@@ -302,7 +302,7 @@ func BuildEpCreation201RequestFromProposal(proposal *models.Proposal, partyID st
 		Spor: epCreationSpor{
 			SignedRequest: signedRequest,
 		},
-		Roles:      buildDefaultRoles(startDate, endDate),
+		Roles:      buildRolesFromProposal(proposal, startDate, endDate),
 		Agreements: agreements,
 	}
 	payload.AuthRegistries = buildAuthRegistriesFromProposal(proposal, registrarId, authRegistryURL, dataspaceId, dataspaceTitle)
@@ -325,7 +325,7 @@ func BuildEpCreation211RequestFromProposal(proposal *models.Proposal, partyDID s
 		Spor: epCreationSpor{
 			SignedRequest: signedRequest,
 		},
-		Roles:      buildDefaultRoles(startDate, endDate),
+		Roles:      buildRolesFromProposal(proposal, startDate, endDate),
 		Agreements: agreements,
 	}
 	payload.AuthRegistries = buildAuthRegistriesFromProposal(proposal, registrarId, authRegistryURL, dataspaceId, dataspaceTitle)
@@ -346,7 +346,7 @@ func BuildParty22RequestFromProposal(proposal *models.Proposal, partyDID string,
 			EndDate:   endDate,
 		},
 		AdditionalInfo: buildAdditionalInfo201FromProposal(proposal),
-		Roles:          buildDefaultRoles22(startDate, endDate),
+		Roles:          buildRoles22FromProposal(proposal, startDate, endDate),
 		Agreements:     agreements,
 	}
 
@@ -637,34 +637,37 @@ func buildAdditionalInfo211FromProposal(proposal *models.Proposal) *epCreationAd
 	}
 }
 
-func buildDefaultRoles(startDate string, endDate string) []epCreationRole {
-	role := "EntitledParty"
+func buildRolesFromProposal(proposal *models.Proposal, startDate string, endDate string) []epCreationRole {
 	loa := "Substantial"
 	compliancyVerified := "yes"
 	legalAdherence := "yes"
-	return []epCreationRole{
-		{
+	var roles []epCreationRole
+	for _, role := range FrameworkRolesFromProposal(proposal, RoleEntitledParty) {
+		roles = append(roles, epCreationRole{
 			Role:               stringPtr(role),
 			StartDate:          stringPtr(startDate),
 			EndDate:            stringPtr(endDate),
 			Loa:                stringPtr(loa),
 			CompliancyVerified: stringPtr(compliancyVerified),
 			LegalAdherence:     stringPtr(legalAdherence),
-		},
+		})
 	}
+	return roles
 }
 
-func buildDefaultRoles22(startDate string, endDate string) []partyRole22 {
-	return []partyRole22{
-		{
-			Role:               "EntitledParty",
+func buildRoles22FromProposal(proposal *models.Proposal, startDate string, endDate string) []partyRole22 {
+	var roles []partyRole22
+	for _, role := range FrameworkRolesFromProposal(proposal, RoleEntitledParty) {
+		roles = append(roles, partyRole22{
+			Role:               role,
 			StartDate:          startDate,
 			EndDate:            endDate,
 			Loa:                "Substantial",
 			CompliancyVerified: true,
 			LegalAdherence:     true,
-		},
+		})
 	}
+	return roles
 }
 
 func stringPtr(value string) *string {

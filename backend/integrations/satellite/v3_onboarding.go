@@ -115,19 +115,26 @@ func BuildV3OnboardingClaims(proposal *models.Proposal, cfg V3OnboardingClaimCon
 		claims = append(claims, dsAgreement)
 	}
 
-	// 3) frameworkRole — the party's role within the framework.
-	claims = append(claims, map[string]interface{}{
-		"type":               "frameworkRole",
-		"registrarId":        cfg.RegistrarID,
-		"status":             "active",
-		"frameworkId":        cfg.FrameworkID,
-		"roleId":             cfg.RoleID,
-		"startDate":          cfg.StartDate,
-		"endDate":            cfg.EndDate,
-		"loa":                cfg.Loa,
-		"compliancyVerified": cfg.CompliancyVerified,
-		"legalAdherence":     cfg.LegalAdherence,
-	})
+	// 3) frameworkRole — one claim per role chosen during onboarding; cfg.RoleID
+	// when none was chosen.
+	roles := FrameworkRolesFromProposal(proposal, cfg.RoleID)
+	if strings.TrimSpace(proposal.CertX5c) == "" {
+		roles = rolesWithoutCertificate(roles)
+	}
+	for _, role := range roles {
+		claims = append(claims, map[string]interface{}{
+			"type":               "frameworkRole",
+			"registrarId":        cfg.RegistrarID,
+			"status":             "active",
+			"frameworkId":        cfg.FrameworkID,
+			"roleId":             role,
+			"startDate":          cfg.StartDate,
+			"endDate":            cfg.EndDate,
+			"loa":                cfg.Loa,
+			"compliancyVerified": cfg.CompliancyVerified,
+			"legalAdherence":     cfg.LegalAdherence,
+		})
+	}
 
 	// 4) Mandatory identity claim: eIDAS certificate or eHerkenning assertion.
 	switch {

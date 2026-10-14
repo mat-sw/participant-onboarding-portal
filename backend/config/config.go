@@ -179,7 +179,8 @@ func (config *Config) LoadEnvironment() error {
 	}
 	config.FrameworkRoleId = os.Getenv("FRAMEWORK_ROLE_ID")
 	if config.FrameworkRoleId == "" {
-		// Non-M2M role: avoids forcing an x509 cert for eHerkenning parties.
+		// Used only when the proposal chose no role. Non-M2M role: avoids forcing an
+		// x509 cert for eHerkenning parties.
 		config.FrameworkRoleId = "EntitledParty"
 	}
 	config.FrameworkRoleLoa = os.Getenv("FRAMEWORK_ROLE_LOA")
