@@ -256,6 +256,15 @@ const nl = {
       title: "Registratie niet goedgekeurd",
       message: "Uw registratie is niet goedgekeurd. Neem contact op met de vereniging voor meer informatie of start een nieuwe registratie."
     },
+    editDetails: {
+      button: "Gegevens bewerken",
+      title: "Bedrijfsgegevens bewerken",
+      hint: "Deze gegevens worden bij uw partij in het deelnemersregister gepubliceerd. Laat een veld leeg om het te wissen.",
+      save: "Opslaan",
+      saving: "Opslaan…",
+      cancel: "Annuleren",
+      saveError: "Het opslaan van uw gegevens is mislukt. Probeer het opnieuw."
+    },
     welcome: {
       title: "Onboarding voltooid, {{name}}!",
       message: "Uw organisatie is toegelaten tot het deelnemersregister. Hieronder vindt u uw partijgegevens en de credentials die u kunt aanvragen."

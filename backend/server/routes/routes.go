@@ -150,6 +150,9 @@ func GroupRegistryRequests(server *s.Server, group fiber.Router, config *config.
 	group.Get("/version", handler.GetSatelliteVersion)
 	// The applicant's own registered party (scoped to their token's proposal).
 	group.Get("/me/party", handler.GetMyParty)
+	// Self-service edit of the caller's own frameworkCompliance details; the party
+	// and claim are derived from the caller's completed proposal (IDOR-safe).
+	group.Patch("/me/party/compliance", handlers.NewHandlerMyParty(server, config).PatchMyCompliance)
 	// Verifiable-credential offers for the caller's own party, polled from the
 	// external iSHARE VC issuer (the portal is the "ObP" poller — it never signs).
 	// The party id is derived server-side from the caller's proposal (IDOR-safe).

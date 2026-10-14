@@ -545,6 +545,12 @@ export class API {
     return this.client.get(`/registry/me/party`)
   }
 
+  // Update the caller's OWN frameworkCompliance details. Only capabilityUrl,
+  // website, companyEmail, companyPhone, tags and description are accepted.
+  updateMyPartyDetails (body: Record<string, string>) {
+    return this.client.patch(`/registry/me/party/compliance`, body)
+  }
+
   // Verifiable-credential offers for the caller's own party, polled from the
   // external iSHARE VC issuer (the portal relays; it never signs). Returns
   // { issuerConfigured, status: pending|processing|ready|failed|unavailable|none,

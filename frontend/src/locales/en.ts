@@ -257,6 +257,15 @@ const en = {
       title: "Registration not approved",
       message: "Your registration was not approved. Please contact the association for more information or start a new registration."
     },
+    editDetails: {
+      button: "Edit details",
+      title: "Edit company details",
+      hint: "These details are published on your party in the participant registry. Leave a field empty to clear it.",
+      save: "Save",
+      saving: "Saving…",
+      cancel: "Cancel",
+      saveError: "Saving your details failed. Please try again."
+    },
     welcome: {
       title: "Onboarding complete, {{name}}!",
       message: "Your organisation has been admitted to the participant registry. Below is your party information and the credentials you can request."

@@ -860,6 +860,20 @@ func (h *HandlerRegistry) fetchPartyByID(id string) (interface{}, error) {
 	return nil, nil
 }
 
+// fetchPartyByExactID is fetchPartyByID for writes: it never falls back to a sole
+// result whose id differs from the requested one.
+func (h *HandlerRegistry) fetchPartyByExactID(id string) (map[string]interface{}, error) {
+	party, err := h.fetchPartyByID(id)
+	if err != nil || party == nil {
+		return nil, err
+	}
+	m, ok := party.(map[string]interface{})
+	if !ok || !partyHasID(m, id) {
+		return nil, nil
+	}
+	return m, nil
+}
+
 // partyHasID reports whether a party object's identifier matches id, checking the
 // v3 `id` (DID) and v2 `party_id` fields.
 func partyHasID(m map[string]interface{}, id string) bool {

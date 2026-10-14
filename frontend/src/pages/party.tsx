@@ -6,13 +6,14 @@ import ProtectedRoute from "components/ProtectedRoute";
 import { Skeleton } from "components";
 import CredentialsSection from "components/CredentialsSection";
 import PartyAliases from "components/PartyAliases";
+import MyPartyDetailsModal from "components/MyPartyDetailsModal";
 import API from "api/client";
 import { useLanguage } from "../context/LanguageContext";
 import styles from "styles/ParticipantDetail.module.css";
 
-// Read-only view of the applicant's own registered party. Mirrors the visual
-// language of the admin participant-detail page (shares its CSS module) but is a
-// simpler, non-editable projection driven by /registry/me/party.
+// The applicant's own registered party. Mirrors the visual language of the admin
+// participant-detail page (shares its CSS module) but is a simpler projection
+// driven by /registry/me/party; only the frameworkCompliance details are editable.
 type Party = Record<string, any>;
 
 const asArray = (v: any): any[] => (Array.isArray(v) ? v : []);
@@ -51,6 +52,15 @@ const humanize = (s: string): string =>
     .replace(/^./, (c) => c.toUpperCase())
     .trim();
 
+// Same choice as the backend: the only frameworkCompliance claim, or the only
+// active one when there are several.
+const complianceClaim = (party: Party | null): any => {
+  const all = asArray(party?.claims).filter((c) => c?.type === "frameworkCompliance" && c?.id);
+  if (all.length === 1) return all[0];
+  const active = all.filter((c) => isActive(str(c.status)));
+  return active.length === 1 ? active[0] : null;
+};
+
 const Pill = ({ value }: { value: string }) =>
   value ? (
     <span className={`${styles.pill} ${isActive(value) ? styles.active : styles.inactive}`}>
@@ -76,6 +86,7 @@ const MyParty: NextPage = () => {
   const [partyName, setPartyName] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [errored, setErrored] = useState(false);
+  const [editingDetails, setEditingDetails] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -110,9 +121,15 @@ const MyParty: NextPage = () => {
   const name = str(party?.party_name ?? party?.name) || partyName;
   const id = str(party?.party_id ?? party?.id) || partyId;
   const hasClaims = Array.isArray(party?.claims) && party.claims.length > 0;
+  const editableClaim = complianceClaim(party);
 
   const renderClaimCards = () => {
-    const claims: { type: string; statusVal?: string; fields: { label: string; value: ReactNode }[] }[] = [];
+    const claims: {
+      type: string;
+      statusVal?: string;
+      editable?: boolean;
+      fields: { label: string; value: ReactNode }[];
+    }[] = [];
     if (hasClaims) {
       party!.claims.forEach((c: any) => {
         const skip = new Set(["type", "id", "status", "additionalInfo"]);
@@ -136,7 +153,7 @@ const MyParty: NextPage = () => {
         if (c?.additionalInfo && typeof c.additionalInfo === "object") {
           Object.entries(c.additionalInfo).forEach(([k, v]) => push(k, v));
         }
-        claims.push({ type: str(c?.type), statusVal: str(c?.status), fields });
+        claims.push({ type: str(c?.type), statusVal: str(c?.status), editable: c === editableClaim, fields });
       });
     } else {
       const adherence = party?.adherence ?? {};
@@ -194,6 +211,17 @@ const MyParty: NextPage = () => {
                   </Row>
                 ))}
               </div>
+              {c.editable && (
+                <div className={styles.claimCardActions}>
+                  <button
+                    type="button"
+                    className={styles.claimEditBtn}
+                    onClick={() => setEditingDetails(true)}
+                  >
+                    {t("party.editDetails.button")}
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -295,6 +323,16 @@ const MyParty: NextPage = () => {
             </header>
             {renderClaimCards()}
             <CredentialsSection />
+            {editingDetails && editableClaim && (
+              <MyPartyDetailsModal
+                claim={editableClaim}
+                onClose={() => setEditingDetails(false)}
+                onSaved={() => {
+                  setEditingDetails(false);
+                  load();
+                }}
+              />
+            )}
           </div>
         ) : (
           <div className={styles.body}>
