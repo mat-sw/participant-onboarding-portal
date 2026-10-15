@@ -242,6 +242,17 @@
   flex-direction: column;
   overflow: hidden;
 }
+.nativeDialog {
+  padding: 0;
+  border: none;
+  color: inherit;
+}
+.nativeDialog:not([open]) {
+  display: none;
+}
+.nativeDialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
 .modalHead {
   display: flex;
   align-items: center;
